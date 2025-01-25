@@ -104,7 +104,7 @@
         <label for="tenure">Tenure (in years):</label>
         <input type="number" id="tenure" name="tenure" required>
 
-        <label for="extraEMI">Extra EMI Paid Every Year (Number):</label>
+        <label for="extraEMI">Extra EMI Paid Every Year (₹):</label>
         <input type="number" id="extraEMI" name="extraEMI">
 
         <label for="emiHikePercent">Hike EMI by % Every Year:</label>
@@ -117,5 +117,49 @@
         <button onclick="downloadSpreadsheet()">Download as Spreadsheet</button>
         <table id="resultTable"></table>
     </div>
+
+    <script>
+        function calculateLoan() {
+            let loanAmount = parseFloat(document.getElementById("loanAmount").value);
+            let interestRate = parseFloat(document.getElementById("interestRate").value) / 100 / 12;
+            let tenure = parseInt(document.getElementById("tenure").value) * 12;
+            let extraEMI = parseFloat(document.getElementById("extraEMI").value) || 0;
+            let emiHikePercent = parseFloat(document.getElementById("emiHikePercent").value) || 0;
+
+            let emi = (loanAmount * interestRate * Math.pow(1 + interestRate, tenure)) / 
+                      (Math.pow(1 + interestRate, tenure) - 1);
+            let balance = loanAmount;
+            let table = `<tr><th>Month</th><th>EMI</th><th>Interest Paid</th><th>Principal Paid</th><th>Remaining Balance</th></tr>`;
+
+            for (let month = 1; month <= tenure && balance > 0; month++) {
+                let interestPaid = balance * interestRate;
+                let principalPaid = emi - interestPaid;
+                balance -= principalPaid;
+
+                if (month % 12 === 0) {
+                    emi += emi * (emiHikePercent / 100);
+                    balance -= extraEMI;
+                }
+
+                if (balance < 0) balance = 0;
+
+                table += `<tr>
+                            <td>${month}</td>
+                            <td>₹${emi.toFixed(2)}</td>
+                            <td>₹${interestPaid.toFixed(2)}</td>
+                            <td>₹${principalPaid.toFixed(2)}</td>
+                            <td>₹${balance.toFixed(2)}</td>
+                          </tr>`;
+            }
+
+            document.getElementById("resultTable").innerHTML = table;
+        }
+
+        function downloadSpreadsheet() {
+            let table = document.getElementById("resultTable");
+            let wb = XLSX.utils.table_to_book(table, {sheet: "Loan Schedule"});
+            XLSX.writeFile(wb, "Loan_Calculation.xlsx");
+        }
+    </script>
 </body>
 </html>
