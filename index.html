@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOAN CALCULATOR</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(45deg, #f3ec78, #af4261);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            color: #333;
+            text-align: center;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        h1 {
+            font-size: 2.5em;
+            color: red;
+        }
+        h2 {
+            font-size: 1.2em;
+            color: #fff;
+        }
+        form {
+            margin: 20px auto;
+            width: 80%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin: 20px auto;
+            width: 80%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <img src="photo_2024-11-07_20-34-08.jpg" alt="Profile Image" style="width: 150px; border-radius: 50%;">
+    <h2>MADE BY KISLAY KASHYAP</h2>
+    <h1>LOAN CALCULATOR</h1>
+    <h2>HOPE YOU GET OUT OF THIS LOAN SOON.......</h2>
+
+    <form onsubmit="event.preventDefault(); calculateLoan();">
+        <label for="loanAmount">Loan Amount (₹):</label>
+        <input type="number" id="loanAmount" name="loanAmount" required>
+
+        <label for="interestRate">Rate of Interest (% per annum):</label>
+        <input type="number" id="interestRate" name="interestRate" step="0.01" required>
+
+        <label for="tenure">Tenure (in years):</label>
+        <input type="number" id="tenure" name="tenure" required>
+
+        <label for="extraEMI">Extra EMI Paid Every Year (Number):</label>
+        <input type="number" id="extraEMI" name="extraEMI">
+
+        <label for="emiHikePercent">Hike EMI by % Every Year:</label>
+        <input type="number" id="emiHikePercent" name="emiHikePercent">
+
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div class="result">
+        <button onclick="downloadSpreadsheet()">Download as Spreadsheet</button>
+        <table id="resultTable"></table>
+    </div>
+</body>
+</html>
