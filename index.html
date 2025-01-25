@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOAN CALCULATOR</title>
+    <title>Loan EMI Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,6 +70,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: left;
+            padding-bottom: 30px;
         }
         table {
             width: 100%;
@@ -89,10 +90,9 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-    <img src="photo_2024-11-07_20-34-08.jpg" alt="Profile Image" style="width: 150px; border-radius: 50%;">
     <h2>MADE BY KISLAY KASHYAP</h2>
-    <h1>LOAN CALCULATOR</h1>
-    <h2>HOPE YOU GET OUT OF THIS LOAN SOON.......</h2>
+    <h1>Loan EMI Calculator</h1>
+    <h2>Plan Your Loan Wisely!</h2>
 
     <form onsubmit="event.preventDefault(); calculateLoan();">
         <label for="loanAmount">Loan Amount (₹):</label>
@@ -104,7 +104,7 @@
         <label for="tenure">Tenure (in years):</label>
         <input type="number" id="tenure" name="tenure" required>
 
-        <label for="extraEMI">Extra EMI Paid Every Year (₹):</label>
+        <label for="extraEMI">Extra EMI Paid Every Year (Number of EMIs):</label>
         <input type="number" id="extraEMI" name="extraEMI">
 
         <label for="emiHikePercent">Hike EMI by % Every Year:</label>
@@ -114,7 +114,12 @@
     </form>
 
     <div class="result">
-        <button onclick="downloadSpreadsheet()">Download as Spreadsheet</button>
+        <h3>Loan Summary:</h3>
+        <p id="emiAmount"></p>
+        <p id="totalEMIs"></p>
+        <p id="interestSaved"></p>
+        <p id="loanCompletion"></p>
+        <button onclick="downloadSpreadsheet()">Download Loan Schedule</button>
         <table id="resultTable"></table>
     </div>
 
@@ -129,36 +134,47 @@
             let emi = (loanAmount * interestRate * Math.pow(1 + interestRate, tenure)) / 
                       (Math.pow(1 + interestRate, tenure) - 1);
             let balance = loanAmount;
+            let totalEMIs = 0;
+            let originalInterest = emi * tenure - loanAmount;
+            let actualInterestPaid = 0;
             let table = `<tr><th>Month</th><th>EMI</th><th>Interest Paid</th><th>Principal Paid</th><th>Remaining Balance</th></tr>`;
 
             for (let month = 1; month <= tenure && balance > 0; month++) {
                 let interestPaid = balance * interestRate;
                 let principalPaid = emi - interestPaid;
                 balance -= principalPaid;
+                actualInterestPaid += interestPaid;
+                totalEMIs++;
 
                 if (month % 12 === 0) {
                     emi += emi * (emiHikePercent / 100);
-                    balance -= extraEMI;
+                    balance -= extraEMI * emi;
                 }
 
                 if (balance < 0) balance = 0;
 
                 table += `<tr>
                             <td>${month}</td>
-                            <td>₹${emi.toFixed(2)}</td>
-                            <td>₹${interestPaid.toFixed(2)}</td>
-                            <td>₹${principalPaid.toFixed(2)}</td>
-                            <td>₹${balance.toFixed(2)}</td>
+                            <td>${emi.toFixed(2)}</td>
+                            <td>${interestPaid.toFixed(2)}</td>
+                            <td>${principalPaid.toFixed(2)}</td>
+                            <td>${balance.toFixed(2)}</td>
                           </tr>`;
             }
 
+            let actualYears = (totalEMIs / 12).toFixed(1);
+            let interestSaved = originalInterest - actualInterestPaid;
+            document.getElementById("emiAmount").innerHTML = `Monthly EMI: ₹${emi.toFixed(2)}`;
+            document.getElementById("totalEMIs").innerHTML = `Total EMIs Required: ${totalEMIs}`;
+            document.getElementById("interestSaved").innerHTML = `Interest Saved: ₹${interestSaved.toFixed(2)}`;
+            document.getElementById("loanCompletion").innerHTML = `Loan Completed in ${actualYears} years instead of ${tenure / 12} years!`;
             document.getElementById("resultTable").innerHTML = table;
         }
 
         function downloadSpreadsheet() {
             let table = document.getElementById("resultTable");
             let wb = XLSX.utils.table_to_book(table, {sheet: "Loan Schedule"});
-            XLSX.writeFile(wb, "Loan_Calculation.xlsx");
+            XLSX.writeFile(wb, "Loan_Schedule.xlsx");
         }
     </script>
 </body>
